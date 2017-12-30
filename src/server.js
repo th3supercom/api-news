@@ -22,7 +22,8 @@ const server = http.createServer((req, res) => {
         _serve(query, res, 'score');
     }
     else{
-        res.write(JSON.stringify({code:0}));
+        msg = 'path not supported';
+        res.write(JSON.stringify({code:0, msg:msg}));
         res.end();
     }
 });

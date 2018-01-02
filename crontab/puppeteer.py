@@ -37,6 +37,14 @@ def getJson(url):
         print when(), e
         return {}
 
+# get docid from norm url
+def getDocid(url):
+    normurl = 'http://172.31.20.133:10001/norm?url=' + urllib.quote(url)
+    r = getJson(normurl)
+    if 'result' in r and len(r['result']) > 0:
+        url = r['result'][0]
+    return getJson(url)
+
 for url,selector in config:
     host = url[url.find('//')+2:]
     print when(), '>>> process host [', host, ']'
@@ -78,7 +86,7 @@ for url,selector in config:
         urls = result.keys()
         urls = ['http://172.31.4.8:6001/id/find?token=d01bbc072c2e7376801d9aa0eb89f95a&url='+urllib.quote(x) for x in urls]
         pool = ThreadPool(10)
-        docs = pool.map(getJson, urls)
+        docs = pool.map(getDocid, urls)
         pool.close()
         pool.join()
         url2docid = {}

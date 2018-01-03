@@ -106,6 +106,10 @@ const _parse = ((query, res) => {
         }
         catch (e){
             console.log(dateFormat(), e);
+
+            await page.close();
+            await browser.close();
+
             res.write(JSON.stringify({code:-1,err:e.message}));
             res.end();
         }

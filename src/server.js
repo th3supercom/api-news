@@ -5,7 +5,7 @@ const puppeteer = require('puppeteer');
 const dateFormat = require('dateformat');
 
 const server = http.createServer((req, res) => {
-    console.log('request: ' + req.url);
+    console.log(dateFormat(), 'request: ' + req.url);
     res.writeHead(200, {'Content-Type':'application/json'});
     
     const parse = urllib.parse(req.url, true);
@@ -105,7 +105,7 @@ const _parse = ((query, res) => {
             res.end();
         }
         catch (e){
-            console.log(e);
+            console.log(dateFormat(), e);
             res.write(JSON.stringify({code:-1,err:e.message}));
             res.end();
         }
@@ -114,4 +114,4 @@ const _parse = ((query, res) => {
 
 server.listen(8888);
 
-console.log('Node.js runing on port 8888');
+console.log(dateFormat(), 'Node.js runing on port 8888');

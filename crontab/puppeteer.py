@@ -6,17 +6,24 @@ if len(sys.argv) < 3:
     sys.exit()
 
 # read config
-fn = sys.argv[1]
-if not os.path.isfile(fn):
-    print when(), 'error [', fn, '] not exists'
-    sys.exit()
+fns = sys.argv[1].split(',')
+for fn in fns:
+    if not os.path.isfile(fn):
+        print when(), 'error [', fn, '] not exists'
+        sys.exit()
 
-config = []
-fin = open(fn)
-for line in fin:
-    line = line.strip().split(' ')
-    config.append((line[0],line[1]))
-fin.close()
+configs = {}
+for fn in fns:
+    fin = open(fn)
+    for line in fin:
+        j = json.loads(line.strip())
+        if 'url' in j and 'selector' in j:
+            configs[j['url']] = j
+        else:
+            print when(), 'error [', fn, '] config:', line.strip()
+    fin.close()
+configs = configs.values()
+configs.sort(key=lambda x:x['url'])
 
 # ensure output dir
 ts = int(time.time())
@@ -28,14 +35,16 @@ if not os.path.isdir(fn):
 def when():
   return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
 
-# get json from url
+# get json from url, retry=3
 def getJson(url):
-    try:
-        r = requests.get(url)
-        return json.loads(r.content)
-    except Exception, e:
-        print when(), e
-        return {}
+    for i in range(1,-1,-1):
+        try:
+            r = requests.get(url, timeout=30)
+            return json.loads(r.content)
+        except Exception, e:
+            if i == 0:
+                print when(), e
+                return {}
 
 # get docid from norm url
 def getDocid(url):
@@ -45,15 +54,24 @@ def getDocid(url):
         url = r['result'][0]
     return getJson(url)
 
-for url,selector in config:
+for config in configs:
+    url = urllib.quote(config['url'])
+    selector = urllib.quote(config['selector'])
+    waitfor = config['waitfor'] if 'waitfor' in config else 0
+
     host = url[url.find('//')+2:]
+    if host.startswith('www.'):
+        host = host[4:]
+    print ''
     print when(), '>>> process host [', host, ']'
     rect_output = fn + os.sep + '.'.join(['rect', host, str(ts)])
     score_output = fn + os.sep + '.'.join(['score', host, str(ts)])
     try:
+        ts_start = time.time()
+
         # get url rect and write to file rect.host.ts 
-        r = getJson('http://172.24.22.73:8888/parse?url=%s&selector=%s' % (url,selector))
-        if 'code' in r and r['code'] == 0:
+        r = getJson('http://172.24.22.73:8888/parse?url=%s&selector=%s&waitfor=%d' % (url,selector,waitfor))
+        if 'links' in r and len(r['links']) > 0:
             r['ts'] = ts
             fout = open(rect_output, 'w')
             fout.write(json.dumps(r))
@@ -105,7 +123,10 @@ for url,selector in config:
         fout = open(score_output,'w')
         fout.write(json.dumps({'code':0,'url':url,'links':links,'ts':ts}))
         fout.close()
-        print when(), 'write to file [', score_output, "]\n"
+        print when(), 'write to file [', score_output, "]"
+
+        ts_end = time.time()
+        print when(), 'time:', ts_end-ts_start, 'sec'
         
     except Exception, e:
         print when(), e

@@ -38,7 +38,7 @@ const _serve = ((query, res, prefix) => {
         return;
     }
     
-    const root = '/home/services/puppeteer/data/scores/';
+    const root = '/data/puppeteer/caches/';
     const fn = prefix + '.' + host;
 
     let now = new Date(), path = '', file = '';
@@ -69,6 +69,7 @@ const _serve = ((query, res, prefix) => {
 const _parse = ((query, res) => {
     const url = query['url'];
     const selector = query['selector'];
+    const waitfor = query['waitfor'];
 
     if (url == undefined || selector == undefined){
         msg = 'parameter `url` or `selector` missing';
@@ -89,7 +90,8 @@ const _parse = ((query, res) => {
             await page.waitForFunction(selector => {
                 return document.querySelectorAll(selector).length >= 20;
             }, {}, selector);
-            //await page.waitFor(10000);
+            if (waitfor != undefined)
+                await page.waitFor(parseInt(waitfor));
     
             const links = await page.$$eval(selector, links => {
                 return Array.from(links).map(link => {

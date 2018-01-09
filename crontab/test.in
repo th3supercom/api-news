@@ -1,2 +1,2 @@
-https://sports.yahoo.com %23Main%20a[href]
-http://www.sportingnews.com .main-content%20a[href]
+{"url":"https://huffingtonpost.com","selector":"#main a[href]"}
+{"url":"https://politico.com","selector":".super-duper a[href]"}

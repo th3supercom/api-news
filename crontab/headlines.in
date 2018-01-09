@@ -12,7 +12,6 @@
 {"url":"https://nbcnews.com","selector":".grid_panel a[href]"}
 {"url":"http://dailymail.co.uk","selector":"#content a[href]"}
 {"url":"https://theguardian.com","selector":".facia-page a[href]"}
-{"url":"https://wsj.com","selector":".cb-row a[href]"}
 {"url":"https://bbc.co.uk","selector":".content a[href]"}
 {"url":"http://latimes.com","selector":".trb_allContentWrapper a[href]"}
 {"url":"https://www.politico.com","selector":".super-duper a[href]"}
